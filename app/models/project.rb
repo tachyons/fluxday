@@ -12,7 +12,7 @@ class Project < ApplicationRecord
   validates :code, uniqueness: true
 
   # default_scope where(is_deleted: false)
-  default_scope { order('projects.name ASC') }
+  default_scope { order(name: :asc) }
 
   # after_save  :update_numbers
 

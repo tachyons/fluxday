@@ -25,7 +25,7 @@ class Task < ApplicationRecord
 
   scope :active, -> { where(is_deleted: false) }
   scope :root, -> { where(task_id: nil) }
-  scope :sub, -> { where('task_id IS NOT NULL') }
+  scope :sub, -> { where.not(task_id: nil) }
   scope :pending, -> { where(status: 'active') }
   scope :completed, -> { where(status: 'completed') }
   scope :searchable_for_user, ->(user) { where('id in (?) OR id in (?) OR project_id in (?)  OR team_id in (?)', user.task_ids, user.assignment_ids, user.project_ids, user.team_ids) }
