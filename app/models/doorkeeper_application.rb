@@ -1,0 +1,2 @@
+class DoorkeeperApplication < ApplicationRecord
+end
