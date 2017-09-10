@@ -44,7 +44,8 @@ gem 'wicked_pdf'
 gem 'friendly_id'
 gem 'doorkeeper'
 gem "mini_magick"
-
+gem 'devise'
+gem "omniauth-google-oauth2"
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
