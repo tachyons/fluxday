@@ -12,3 +12,17 @@ class TeamMember < ApplicationRecord
     team.project.update_attributes(member_count: team.project.project_members.active.count)
   end
 end
+
+# == Schema Information
+# Schema version: 20160604102931
+#
+# Table name: team_members
+#
+#  id         :integer          not null, primary key
+#  team_id    :integer
+#  user_id    :integer
+#  role       :string           default("member")
+#  status     :string           default("active")
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#

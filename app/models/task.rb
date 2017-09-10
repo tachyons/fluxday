@@ -70,3 +70,27 @@ class Task < ApplicationRecord
     end
   end
 end
+
+# == Schema Information
+# Schema version: 20160604102931
+#
+# Table name: tasks
+#
+#  id             :integer          not null, primary key
+#  name           :string
+#  description    :text
+#  start_date     :datetime
+#  end_date       :datetime
+#  project_id     :integer
+#  team_id        :integer
+#  user_id        :integer
+#  tracker_id     :string
+#  comments_count :integer          default(0)
+#  created_at     :datetime         not null
+#  updated_at     :datetime         not null
+#  priority       :string
+#  is_deleted     :boolean          default(FALSE)
+#  task_id        :integer
+#  status         :string           default("active")
+#  completed_on   :datetime
+#

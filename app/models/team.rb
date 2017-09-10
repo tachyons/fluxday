@@ -33,3 +33,22 @@ class Team < ApplicationRecord
     teams = Team.where(project_id: (user.project_ids + user.admin_teams.collect(&:project_id).uniq))
   end
 end
+
+# == Schema Information
+# Schema version: 20160604102931
+#
+# Table name: teams
+#
+#  id             :integer          not null, primary key
+#  name           :string
+#  code           :string
+#  description    :text
+#  project_id     :integer
+#  members_count  :integer          default(0)
+#  managers_count :integer          default(0)
+#  is_deleted     :boolean          default(FALSE)
+#  pending_tasks  :integer
+#  status         :string           default("active")
+#  created_at     :datetime         not null
+#  updated_at     :datetime         not null
+#

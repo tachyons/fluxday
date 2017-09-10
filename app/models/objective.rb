@@ -9,3 +9,20 @@ class Objective < ApplicationRecord
 
   scope :active, -> { where(is_deleted: false) }
 end
+
+# == Schema Information
+# Schema version: 20160604102931
+#
+# Table name: objectives
+#
+#  id         :integer          not null, primary key
+#  name       :text
+#  user_id    :integer
+#  author_id  :integer
+#  start_date :date
+#  end_date   :date
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#  is_deleted :boolean          default(FALSE)
+#  okr_id     :integer
+#

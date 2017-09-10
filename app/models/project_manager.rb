@@ -12,3 +12,16 @@ class ProjectManager < ApplicationRecord
     # update_attributes(:team_count=>self.teams.count)
   end
 end
+
+# == Schema Information
+# Schema version: 20160604102931
+#
+# Table name: project_managers
+#
+#  id         :integer          not null, primary key
+#  project_id :integer
+#  user_id    :integer
+#  status     :string           default("active")
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#

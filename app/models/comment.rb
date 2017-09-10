@@ -12,3 +12,19 @@ class Comment < ApplicationRecord
     source.update_attributes(comments_count: source.comments.active.count)
   end
 end
+
+# == Schema Information
+# Schema version: 20160604102931
+#
+# Table name: comments
+#
+#  id          :integer          not null, primary key
+#  source_id   :integer
+#  source_type :string
+#  body        :text
+#  user_id     :integer
+#  created_at  :datetime         not null
+#  updated_at  :datetime         not null
+#  is_deleted  :boolean          default(FALSE)
+#  comment_id  :integer
+#

@@ -1,7 +1,4 @@
 class User < ApplicationRecord
-  # Include default devise modules. Others available are:
-  # :confirmable, :lockable, :timeoutable and :omniauthable
-
   extend FriendlyId
   friendly_id :employee_code
 
@@ -36,8 +33,8 @@ class User < ApplicationRecord
   scope :manager_user, -> { where('role in (?)', %w[admin Manager]) }
 
   validates :name, :nickname, presence: true
-  validate :email, presence: true, uniqueness: true
-  validate :employee_code, presence: true, uniqueness: true
+  validates :email, presence: true, uniqueness: true
+  validates :employee_code, presence: true, uniqueness: true
   before_update :ensure_manager_exists
 
   # default_scope {where.not(is_deleted:true).order("name ASC")}
@@ -111,3 +108,40 @@ class User < ApplicationRecord
     end
   end
 end
+
+# == Schema Information
+# Schema version: 20160604102931
+#
+# Table name: users
+#
+#  id                     :integer          not null, primary key
+#  email                  :string           default(""), not null, indexed
+#  encrypted_password     :string           default(""), not null
+#  reset_password_token   :string           indexed
+#  reset_password_sent_at :datetime
+#  remember_created_at    :datetime
+#  sign_in_count          :integer          default(0), not null
+#  current_sign_in_at     :datetime
+#  last_sign_in_at        :datetime
+#  current_sign_in_ip     :string
+#  last_sign_in_ip        :string
+#  created_at             :datetime         not null
+#  updated_at             :datetime         not null
+#  image                  :string
+#  name                   :string
+#  nickname               :string
+#  employee_code          :string
+#  joining_date           :datetime
+#  role                   :string
+#  status                 :string           default("active")
+#  is_deleted             :boolean          default(FALSE)
+#  provider               :string
+#  uid                    :string
+#  admin_teams_count      :integer          default(0)
+#  admin_projects_count   :integer          default(0)
+#
+# Indexes
+#
+#  index_users_on_email                 (email) UNIQUE
+#  index_users_on_reset_password_token  (reset_password_token) UNIQUE
+#

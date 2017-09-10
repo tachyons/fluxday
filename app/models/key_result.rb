@@ -9,3 +9,20 @@ class KeyResult < ApplicationRecord
 
   validates :name, presence: true
 end
+
+# == Schema Information
+# Schema version: 20160604102931
+#
+# Table name: key_results
+#
+#  id           :integer          not null, primary key
+#  name         :text
+#  user_id      :integer
+#  objective_id :integer
+#  author_id    :integer
+#  start_date   :date
+#  end_date     :date
+#  created_at   :datetime         not null
+#  updated_at   :datetime         not null
+#  is_deleted   :boolean          default(FALSE)
+#

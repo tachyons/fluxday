@@ -16,3 +16,19 @@ class Okr < ApplicationRecord
     key_results.update_all(user_id: user_id, start_date: start_date, end_date: end_date)
   end
 end
+
+# == Schema Information
+# Schema version: 20160604102931
+#
+# Table name: okrs
+#
+#  id         :integer          not null, primary key
+#  user_id    :integer
+#  name       :string
+#  start_date :date
+#  end_date   :date
+#  is_deleted :boolean          default(FALSE)
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#  approved   :boolean          default(FALSE)
+#

@@ -38,3 +38,21 @@ class Project < ApplicationRecord
     end
   end
 end
+
+# == Schema Information
+# Schema version: 20160604102931
+#
+# Table name: projects
+#
+#  id           :integer          not null, primary key
+#  name         :string
+#  code         :string
+#  description  :text
+#  is_deleted   :boolean          default(FALSE)
+#  created_at   :datetime         not null
+#  updated_at   :datetime         not null
+#  team_count   :integer          default(0)
+#  member_count :integer          default(0)
+#  website      :string
+#  image        :string
+#
