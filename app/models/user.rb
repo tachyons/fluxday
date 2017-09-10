@@ -30,7 +30,7 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :trackable, :validatable, :omniauthable, omniauth_providers: [:google_oauth2, :fluxapp] # , :registerable
   scope :active, -> { where(is_deleted: false) }
   scope :by_name, -> { order(name: :asc) }
-  scope :manager_user, -> { where(role: [:admin ,:Manager]) }
+  scope :manager_user, -> { where(role: [:admin, :Manager]) }
 
   validates :name, :nickname, presence: true
   validates :email, presence: true, uniqueness: true
