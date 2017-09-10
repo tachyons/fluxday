@@ -29,8 +29,8 @@ class User < ApplicationRecord
   devise :database_authenticatable,
          :recoverable, :rememberable, :trackable, :validatable, :omniauthable, omniauth_providers: [:google_oauth2, :fluxapp] # , :registerable
   scope :active, -> { where(is_deleted: false) }
-  scope :by_name, -> { order('users.name ASC') }
-  scope :manager_user, -> { where('role in (?)', %w[admin Manager]) }
+  scope :by_name, -> { order(name: :asc) }
+  scope :manager_user, -> { where(role: [:admin ,:Manager]) }
 
   validates :name, :nickname, presence: true
   validates :email, presence: true, uniqueness: true
