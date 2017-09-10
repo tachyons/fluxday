@@ -7,8 +7,9 @@ class User < ApplicationRecord
   has_many :projects, through: :project_managers
   has_many :team_members
   has_many :teams, through: :team_members
-  has_many :admin_teams, through: :projects, source: :teams
+
   has_many :leads, -> { where role: 'lead' }, class_name: 'TeamMember'
+  has_many :admin_teams, through: :projects, source: :teams
   has_many :admin_teams, through: :leads, source: :team # ,:foreign_key=>'user_id'
   has_many :joined_projects, through: :teams, source: :project
   # has_many :task_assignees

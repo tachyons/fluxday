@@ -1,3 +1,4 @@
+require 'time_to_diff' 
 class OkrsController < ApplicationController
   before_action :set_okr, only: [:show, :edit, :update, :destroy]
   before_action :date_and_user, only: [:new, :edit, :index, :show, :create, :update]

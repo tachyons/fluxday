@@ -11,3 +11,9 @@
  *= require_self
  *= require_tree .
  */
+
+/* Temp hack */
+.ep-tracker {
+  height: inherit !important;
+  position: fixed !important;
+}

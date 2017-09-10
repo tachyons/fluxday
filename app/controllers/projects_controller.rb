@@ -16,7 +16,7 @@ class ProjectsController < ApplicationController
     @projects = Project.active
     @teams = @project.teams
     @managers = @project.users.by_name
-    @members = @project.members.where('').map { |x| x }.sort_by(&:name)
+    @members = @project.members.sort_by(&:name)
   end
 
   # GET /projects/new

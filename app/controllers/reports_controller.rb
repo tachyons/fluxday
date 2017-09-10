@@ -479,7 +479,7 @@ class ReportsController < ApplicationController
     @total = {}
     @average = {}
     @users.map { |u| @total[u.id] = @hours[u.id]['hours'].values.sum }
-    @users.map { |u| @average[u.id] = (@total[u.id].to_s.to_f / (@end_date - @start_date)).to_i.to_duration }
+    @users.map { |u| @average[u.id] = (@total[u.id].to_s.to_f / (@end_date - @start_date)).to_i.seconds }
     if %w[csv xls].include?(request.format)
       @titles = ['Name']
       @titles += (@start_date..@end_date).map(&:day).sort
@@ -514,7 +514,8 @@ class ReportsController < ApplicationController
       end
       format.pdf { render pdf: 'Fluxday worklog report', page_size: 'A4', orientation: 'landscape', show_as_html: params[:debug].present?, disable_javascript: false, layout: 'pdf.html', footer: { center: '[page] of [topage]' } }
     end
-  end  def day_log
+  end  
+  def day_log
     @date = params[:date].to_date if params[:date]
     @date ||= Date.today
     @user = current_user.accessible_users.friendly.where(employee_code: params[:user_id]) if params[:user_id]

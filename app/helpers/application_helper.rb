@@ -1,6 +1,6 @@
 module ApplicationHelper
   def current_url(new_params)
-    url_for :params => params.merge(new_params)
+    url_for :params => params.permit!.merge(new_params)
     #params.merge!(new_params)
     #string = params.map{ |k,v| "#{k}=#{v}" }.join("&")
     #request.original_url.split("?")[0] + "?" + string

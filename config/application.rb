@@ -27,5 +27,8 @@ module FluxdayUpgrade
 
     # Don't generate system test files.
     config.generators.system_tests = nil
+    config.to_prepare do
+      Devise::SessionsController.layout "login"
+    end
   end
 end
