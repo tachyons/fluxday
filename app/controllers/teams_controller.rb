@@ -14,13 +14,14 @@ class TeamsController < ApplicationController
     else
       @teams = Team.for_user(current_user)
     end
+    @teams = @teams.includes(:project)
   end
 
   # GET /teams/1
   # GET /teams/1.json
   def show
     # @projects = Project.active
-    @teams = Team.for_user(current_user)
+    @teams = Team.for_user(current_user).includes(:project)
     @team_leads = @team.team_leads
     @members = @team.members.by_name
   end

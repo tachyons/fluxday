@@ -24,7 +24,7 @@ class HomeController < ApplicationController
             end
     @entries = current_user.assigned_and_written_tasks.where('start_date <= ? AND end_date >= ?', @date.end_of_day, @date.beginning_of_day)
 
-    @work_logs = current_user.work_logs.where(date: @date)
+    @work_logs = current_user.work_logs.where(date: @date).includes(:task)
   end
 
   def search

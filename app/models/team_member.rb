@@ -1,6 +1,8 @@
 class TeamMember < ApplicationRecord
-  belongs_to :team
+  belongs_to :team, optional: true
   belongs_to :user
+
+  # validates :team_id, uniqueness: {scope: :user_id}
 
   default_scope { where.not(status: 'archived') }
 

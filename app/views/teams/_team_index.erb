@@ -3,11 +3,6 @@
 </div>
 <% assignables = Team.assignable_by_user(current_user).collect(&:id) %>
 <div class="pane2-content">
-  <%# if defined? project %>
-  <%#= link_to 'New team', new_project_team_path(project), :remote => false, :class => 'dashed_link transition' %>
-  <%# else %>
-  <%#= link_to 'New team', new_team_path, :remote => false, :class => 'dashed_link transition' %>
-  <%# end %>
   <% teams.each do |team| %>
       <div class="card-transparent transition team-card team-<%= team.id %>">
         <div class="team-name">

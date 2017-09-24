@@ -8,7 +8,7 @@ class Task < ApplicationRecord
   # has_many :task_assignees
   # has_many :users, :through => :task_assignees
   has_many :comments, as: :source
-  has_many :work_logs
+  has_many :work_logs, dependent: :destroy
   has_many :task_key_results
   has_many :key_results, through: :task_key_results
   has_many :users, through: :key_results

@@ -23,7 +23,7 @@ class User < ApplicationRecord
   has_many :tasks # authored ones
   has_many :objectives, through: :okrs
   has_many :key_results, through: :objectives
-  has_many :assignments,  through: :key_results, source: :tasks
+  has_many :assignments, through: :key_results, source: :tasks
   has_many :managers, through: :reporting_managers, class_name: 'User'
   has_many :reporting_employees, class_name: 'ReportingManager', foreign_key: 'manager_id'
   has_many :users, through: :reporting_employees, class_name: 'User', foreign_key: 'user_id'

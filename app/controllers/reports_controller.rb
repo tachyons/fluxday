@@ -12,7 +12,7 @@ class ReportsController < ApplicationController
     else
       @opts << %w[Department project] if current_user.admin_projects_count.to_i > 0
       @opts << %w[Team team] if current_user.admin_teams_count.to_i > 0
-      @opts << ['Managing users', 'managing_users'] if !current_user.user_ids.empty?
+      @opts << ['Managing users', 'managing_users'] unless current_user.user_ids.empty?
       @opts << %w[Self user]
     end
     @report_type = params[:report][:type] if params[:report].present?
@@ -49,13 +49,13 @@ class ReportsController < ApplicationController
     grouped_tasks.keys.each { |x| x.each { |y| @tasks[y] = grouped_tasks[x] } }
     @work_logs = Hash.new { |h, k| h[k] = Hash.new(&h.default_proc) }
     work_logs = WorkLog.where(date: @date, user_id: @users.collect(&:id), task_id: tasks.collect(&:id)).select('id', 'user_id', 'minutes').group_by(&:user_id)
-    work_logs.each { |x, v| @work_logs[x] = (v.sum(&:minutes).to_duration).to_s }
+    work_logs.each { |x, v| @work_logs[x] = v.sum(&:minutes).to_duration.to_s }
     # work_logs.keys.each{|x| @work_logs[x]="#{work_logs[x].sum(&:minutes).to_i/60}:#{work_logs[x].sum(&:minutes).to_i%60}"}
     if %w[csv xls].include?(request.format)
       @titles = ['Name', 'Task', 'Total hours']
       @fields = []
       @users.each do |user|
-        @fields << [(user.name).to_s, (@tasks[user.id].length).to_s, (@work_logs[user.id] == {} ? '0:00' : @work_logs[user.id].to_i.to_duration).to_s]
+        @fields << [user.name.to_s, @tasks[user.id].length.to_s, (@work_logs[user.id] == {} ? '0:00' : @work_logs[user.id].to_i.to_duration).to_s]
       end
     end
     respond_to do |format|
@@ -80,7 +80,7 @@ class ReportsController < ApplicationController
     else
       @opts << %w[Department project] if current_user.admin_projects_count.to_i > 0
       @opts << %w[Team team] if current_user.admin_teams_count.to_i > 0
-      @opts << ['Managing users', 'managing_users'] if !current_user.user_ids.empty?
+      @opts << ['Managing users', 'managing_users'] unless current_user.user_ids.empty?
       @opts << %w[Self user]
     end
     @report_type = params[:report][:type] if params[:report].present?
@@ -120,13 +120,13 @@ class ReportsController < ApplicationController
     grouped_tasks.keys.each { |x| x.each { |y| @tasks[y] = @tasks[y].to_i + grouped_tasks[x].length } }
     @work_logs = Hash.new { |h, k| h[k] = Hash.new(&h.default_proc) }
     work_logs = WorkLog.where(date: @start_date..@end_date, user_id: @users.collect(&:id), task_id: tasks.collect(&:id)).select('id', 'user_id', 'minutes').group_by(&:user_id)
-    work_logs.each { |x, v| @work_logs[x] = (v.sum(&:minutes).to_i.to_duration).to_s }
+    work_logs.each { |x, v| @work_logs[x] = v.sum(&:minutes).to_i.to_duration.to_s }
     # work_logs.keys.each{|x| @work_logs[x]="#{work_logs[x].sum(&:minutes).to_i/60}:#{work_logs[x].sum(&:minutes).to_i%60}"}
     if %w[csv xls].include?(request.format)
       @titles = ['Name', 'Task', 'Total hours']
       @fields = []
       @users.each do |user|
-        @fields << [(user.name).to_s, (@tasks[user.id].to_i).to_s, (@work_logs[user.id] == {} ? '0:00' : @work_logs[user.id].to_i.to_duration).to_s]
+        @fields << [user.name.to_s, @tasks[user.id].to_i.to_s, (@work_logs[user.id] == {} ? '0:00' : @work_logs[user.id].to_i.to_duration).to_s]
       end
     end
     respond_to do |format|
@@ -143,22 +143,23 @@ class ReportsController < ApplicationController
       format.pdf { render pdf: 'Fluxday report', page_size: 'A4', show_as_html: params[:debug].present?, disable_javascript: false, layout: 'pdf.html', footer: { center: '[page] of [topage]' } }
     end
   end
+
   def employee_day
-    if current_user.manager?
-      @users = User.active
-    else
-      @users = ([current_user] + current_user.users).uniq
-    end
+    @users = if current_user.manager?
+               User.active
+             else
+               ([current_user] + current_user.users).uniq
+             end
     @user = User.find(params[:employee_id]) if params[:employee_id]
     @user ||= @users.first
     @date = params[:start_date].to_date if params[:start_date].present?
     @date ||= Date.today
     @work_logs = WorkLog.where(date: @date, user_id: @user.id).includes(task: [:project, :team])
     if %w[csv xls].include?(request.format)
-      @titles = ['Task', 'Department', 'Team', 'Hours', 'Status']
+      @titles = %w[Task Department Team Hours Status]
       @fields = []
       @work_logs.each do |log|
-        @fields << [(log.task.name).to_s, (log.task.project.name).to_s, (log.task.team.name).to_s, (log.hours).to_s, (log.task.status == 'active' ? 'Pending' : log.task.status.capitalize).to_s]
+        @fields << [log.task.name.to_s, log.task.project.name.to_s, log.task.team.name.to_s, log.hours.to_s, (log.task.status == 'active' ? 'Pending' : log.task.status.capitalize).to_s]
       end
     end
     respond_to do |format|
@@ -177,11 +178,11 @@ class ReportsController < ApplicationController
   end
 
   def employee_range
-    if current_user.manager?
-      @users = User.active
-    else
-      @users = ([current_user] + current_user.users).uniq
-    end
+    @users = if current_user.manager?
+               User.active
+             else
+               ([current_user] + current_user.users).uniq
+             end
     @user = User.find(params[:employee_id]) if params[:employee_id]
     @user ||= @users.first
     @start_date = params[:start_date].to_date if params[:start_date].present?
@@ -192,17 +193,17 @@ class ReportsController < ApplicationController
     work_logs = WorkLog.where(date: @start_date..@end_date, user_id: @user.id)
     logs = work_logs.group_by(&:task_id)
     @tasks = Task.where(id: logs.keys).includes([:project, :team])
-    logs.each { |x, v| @work_logs[x] = (v.sum(&:minutes).to_i.to_duration).to_s }
+    logs.each { |x, v| @work_logs[x] = v.sum(&:minutes).to_i.to_duration.to_s }
     @total = {}
     @total['tasks'] = @tasks.count
     @total['projects'] = @tasks.collect(&:project_id).uniq.count
     @total['teams'] = @tasks.collect(&:team_id).uniq.count
-    @total['hours'] = (work_logs.sum('minutes').to_duration).to_s
+    @total['hours'] = work_logs.sum('minutes').to_duration.to_s
     if %w[csv xls].include?(request.format)
-      @titles = ['Task', 'Department', 'Team', 'Hours', 'Status']
+      @titles = %w[Task Department Team Hours Status]
       @fields = []
       @tasks.each do |t|
-        @fields << [(t.name).to_s, (t.project.name).to_s, (t.team.name).to_s, (@work_logs[t.id]).to_s, (t.status == 'active' ? 'Pending' : t.status.capitalize).to_s]
+        @fields << [t.name.to_s, t.project.name.to_s, t.team.name.to_s, (@work_logs[t.id]).to_s, (t.status == 'active' ? 'Pending' : t.status.capitalize).to_s]
       end
     end
     respond_to do |format|
@@ -219,6 +220,7 @@ class ReportsController < ApplicationController
       format.pdf { render pdf: 'Fluxday report', page_size: 'A4', show_as_html: params[:debug].present?, disable_javascript: false, layout: 'pdf.html', footer: { center: '[page] of [topage]' } }
     end
   end
+
   def get_selection_list
     if params['type'] == 'project'
       @projects = current_user.manager? ? Project.active : current_user.projects
@@ -234,9 +236,7 @@ class ReportsController < ApplicationController
   end
 
   def tasks
-    unless (current_user.admin_teams_count.to_i + current_user.admin_projects_count.to_i) > 0
-      redirect_to root_path, alert: 'Nothing to show'
-    else
+    if (current_user.admin_teams_count.to_i + current_user.admin_projects_count.to_i) > 0
       if current_user.manager?
         @opts = [%w[Department project], %w[Team team], %w[Users users]]
       else
@@ -272,13 +272,13 @@ class ReportsController < ApplicationController
         @tasks.each { |x| @assignees[x.id] = x.user_ids.length }
         work_logs = WorkLog.where(date: @start_date..@end_date, task_id: @tasks.collect(&:id))
         logs = work_logs.group_by(&:task_id)
-        logs.each { |x, v| @work_logs[x] = (v.sum(&:minutes).to_i.to_duration).to_s }
+        logs.each { |x, v| @work_logs[x] = v.sum(&:minutes).to_i.to_duration.to_s }
       end
       if %w[csv xls].include?(request.format)
-        @titles = ['Task', 'Department', 'Team', 'Employees', 'Hours', 'Status']
+        @titles = %w[Task Department Team Employees Hours Status]
         @fields = []
         @tasks.each do |task|
-          @fields << [(task.name).to_s, (task.project.name).to_s, (task.team.name).to_s, (@assignees[task.id].to_i).to_s, (@work_logs[task.id]).to_s, (task.status == 'active' ? 'Pending' : task.status.capitalize).to_s]
+          @fields << [task.name.to_s, task.project.name.to_s, task.team.name.to_s, @assignees[task.id].to_i.to_s, (@work_logs[task.id]).to_s, (task.status == 'active' ? 'Pending' : task.status.capitalize).to_s]
         end
       end
       respond_to do |format|
@@ -294,6 +294,8 @@ class ReportsController < ApplicationController
         end
         format.pdf { render pdf: 'Fluxday report', page_size: 'A4', show_as_html: params[:debug].present?, disable_javascript: false, layout: 'pdf.html', footer: { center: '[page] of [topage]' } }
       end
+    else
+      redirect_to root_path, alert: 'Nothing to show'
     end
   end
 
@@ -310,7 +312,7 @@ class ReportsController < ApplicationController
       @titles = ['Date', 'Total Hours', 'Description']
       @fields = []
       @work_logs.each do |log|
-        @fields << [(log.date.strftime('%b %d, %Y %H:%M')).to_s, (log.hours).to_s, (log.description).to_s]
+        @fields << [log.date.strftime('%b %d, %Y %H:%M').to_s, log.hours.to_s, log.description.to_s]
       end
     end
     respond_to do |format|
@@ -329,9 +331,7 @@ class ReportsController < ApplicationController
   end
 
   def task
-    unless (current_user.admin_teams_count.to_i + current_user.admin_projects_count.to_i) > 0
-      redirect_to root_path, alert: 'Nothing to show'
-    else
+    if (current_user.admin_teams_count.to_i + current_user.admin_projects_count.to_i) > 0
       if params[:id].present?
         @task = current_user.log_viewable_tasks.find(params[:id])
       elsif params[:tracker_id].present?
@@ -339,19 +339,19 @@ class ReportsController < ApplicationController
       end
       if @task.present?
         @logs = if params[:user_id].present?
-          @task.work_logs.where(:user_id => params[:user_id]).includes(:user).order('date asc')
-        else
-          @task.work_logs.includes(:user).order('date asc')
+                  @task.work_logs.where(user_id: params[:user_id]).includes(:user).order('date asc')
+                else
+                  @task.work_logs.includes(:user).order('date asc')
                 end
         @stats = {}
         @stats['users'] = @logs.collect(&:user_id).uniq.count
         @stats['days'] = @logs.collect(&:date).uniq.count
         @stats['time'] = @logs.sum('minutes').to_duration
         if %w[csv xls].include?(request.format)
-          @titles = ['Date', 'Employee', 'Hours', 'Description']
+          @titles = %w[Date Employee Hours Description]
           @fields = []
           @logs.each do |log|
-            @fields << [(log.date).to_s, (log.user.name).to_s, (log.hours).to_s, (log.description).to_s]
+            @fields << [log.date.to_s, log.user.name.to_s, log.hours.to_s, log.description.to_s]
           end
         end
         respond_to do |format|
@@ -373,6 +373,8 @@ class ReportsController < ApplicationController
           format.html { redirect_to root_path, alert: 'Unauthorized access' }
         end
       end
+    else
+      redirect_to root_path, alert: 'Nothing to show'
     end
   end
 
@@ -381,16 +383,14 @@ class ReportsController < ApplicationController
     @start_date ||= Date.today.to_quarters[0]
     @end_date = params[:end_date] if params[:end_date]
     @end_date ||= Date.today.to_quarters[1]
-    if current_user.manager?
-      @users = User.active
-    else
-      @users = ([current_user] + current_user.users).uniq
-    end
+    @users = if current_user.manager?
+               User.active
+             else
+               ([current_user] + current_user.users).uniq
+             end
     @user = User.find(params[:employee_id]) if params[:employee_id]
     @user ||= @users.first
-    unless @users.include?(@user)
-      redirect_to root_path, alert: 'Unauthorized access'
-    else
+    if @users.include?(@user)
       @key_results = KeyResult.where(user_id: @user.id).active.includes(task_key_results: [:task], objective: :okr)
       # @tasks = Task.where(id:@key_results.collect(&:task_ids).flatten.uniq).includes(:)
       task_ids = @key_results.collect(&:task_ids).flatten
@@ -406,7 +406,7 @@ class ReportsController < ApplicationController
         @key_results.each do |k|
           next if @tasks[k.id].nil?
           @tasks[k.id].each do |task|
-            @fields << [(task.name).to_s, (k.objective.okr.name).to_s, (k.objective.name).to_s, (k.name).to_s, (@work_logs[task.id]).to_s, (task.status == 'active' ? 'Pending' : task.status.capitalize).to_s]
+            @fields << [task.name.to_s, k.objective.okr.name.to_s, k.objective.name.to_s, k.name.to_s, (@work_logs[task.id]).to_s, (task.status == 'active' ? 'Pending' : task.status.capitalize).to_s]
           end
         end
       end
@@ -423,13 +423,16 @@ class ReportsController < ApplicationController
         end
         format.pdf { render pdf: 'Fluxday report', page_size: 'A4', show_as_html: params[:debug].present?, disable_javascript: false, layout: 'pdf.html', footer: { center: '[page] of [topage]' } }
       end
+    else
+      redirect_to root_path, alert: 'Unauthorized access'
     end
   end
+
   def worklogs
     date = if params[:month].present? && params[:year].present?
-      "01 #{params[:month]} #{params[:year]}".to_date
-    else
-      Date.today
+             "01 #{params[:month]} #{params[:year]}".to_date
+           else
+             Date.today
            end
     @opts = []
     if current_user.manager?
@@ -437,7 +440,7 @@ class ReportsController < ApplicationController
     else
       @opts << %w[Department project] if current_user.admin_projects_count.to_i > 0
       @opts << %w[Team team] if current_user.admin_teams_count.to_i > 0
-      @opts << ['Managing users', 'managing_users'] if !current_user.user_ids.empty?
+      @opts << ['Managing users', 'managing_users'] unless current_user.user_ids.empty?
       @opts << ['All accesible users', 'accessible']
       @opts << %w[Self user]
     end
@@ -475,7 +478,7 @@ class ReportsController < ApplicationController
       worklogs.map { |x| (@user_logs[x.user_id][x.date.day].is_a?(Hash) ? @user_logs[x.user_id][x.date.day] = [] : @user_logs[x.user_id][x.date.day]) << [x.minutes.to_duration, "#{x.task.name} - #{x.description}"] }
       @user_logs.each { |k, v| @user_rows[k] = v.values.map(&:length).max }
     end
-    worklogs.map { |x| @hours[x.user_id][x.date.day]['hours'] = @hours[x.user_id][x.date.day].to_s.to_i + x.minutes; (x.delete_request == true ? @hours[x.user_id][x.date.day]['delete_request'] = true : x.delete_request ==(false) && @hours[x.user_id][x.date.day]['delete_request'] !=(true) ? @hours[x.user_id][x.date.day]['delete_request'] = false : @hours[x.user_id][x.date.day]['delete_request'] = true) }
+    worklogs.map { |x| @hours[x.user_id][x.date.day]['hours'] = @hours[x.user_id][x.date.day].to_s.to_i + x.minutes; (x.delete_request == true ? @hours[x.user_id][x.date.day]['delete_request'] = true : x.delete_request == false && @hours[x.user_id][x.date.day]['delete_request'] != true ? @hours[x.user_id][x.date.day]['delete_request'] = false : @hours[x.user_id][x.date.day]['delete_request'] = true) }
     @total = {}
     @average = {}
     @users.map { |u| @total[u.id] = @hours[u.id]['hours'].values.sum }
@@ -514,7 +517,8 @@ class ReportsController < ApplicationController
       end
       format.pdf { render pdf: 'Fluxday worklog report', page_size: 'A4', orientation: 'landscape', show_as_html: params[:debug].present?, disable_javascript: false, layout: 'pdf.html', footer: { center: '[page] of [topage]' } }
     end
-  end  
+  end
+
   def day_log
     @date = params[:date].to_date if params[:date]
     @date ||= Date.today
@@ -529,10 +533,10 @@ class ReportsController < ApplicationController
       end
     else
       if %w[csv xls].include?(request.format)
-        @titles = ['Task', 'Duration', 'Description']
+        @titles = %w[Task Duration Description]
         @fields = []
         @work_logs.each do |log|
-          @fields << [(log.task.name).to_s, (log.minutes.to_duration).to_s, (log.description).to_s]
+          @fields << [log.task.name.to_s, log.minutes.to_duration.to_s, log.description.to_s]
         end
       end
       respond_to do |format|
@@ -590,14 +594,14 @@ class ReportsController < ApplicationController
       logs = @user.work_logs.where(task_id: tasks).group_by(&:task_id)
       tasks.each do |t|
         @fields << [
-          (t.tracker_id).to_s,
-            (t.name).to_s,
-            # "#{t.description}",
-            (t.start_date.strftime('%b %d, %Y %H:%M')).to_s,
-            (t.end_date.strftime('%b %d, %Y %H:%M')).to_s,
-            (t.status == 'active' ? 'Pending' : t.status.capitalize).to_s,
-            (t.completed_on.nil? ? '' : t.completed_on.strftime('%b %d, %Y %H:%M')).to_s,
-            (logs[t.id].nil? ? '0:00' : logs[t.id].sum(&:minutes).to_duration).to_s
+          t.tracker_id.to_s,
+          t.name.to_s,
+          # "#{t.description}",
+          t.start_date.strftime('%b %d, %Y %H:%M').to_s,
+          t.end_date.strftime('%b %d, %Y %H:%M').to_s,
+          (t.status == 'active' ? 'Pending' : t.status.capitalize).to_s,
+          (t.completed_on.nil? ? '' : t.completed_on.strftime('%b %d, %Y %H:%M')).to_s,
+          (logs[t.id].nil? ? '0:00' : logs[t.id].sum(&:minutes).to_duration).to_s
         ]
       end
       respond_to do |format|

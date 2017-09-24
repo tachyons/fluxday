@@ -8,7 +8,7 @@
             </ul>
           </div>
       <% end %>
-      <%= build_validated_field('project', 'name', 'Title', 'Cannot be blank', '[a-zA-Z]+', 'text',@project.name) %>
+      <%= build_validated_field('project', 'name', 'Title', 'Cannot be blank', '[a-zA-Z ]+', 'text',@project.name) %>
       <%= build_validated_field('project', 'code', 'Code', 'Cannot be blank', '[a-zA-Z]+', 'text',@project.code) %>
       <%= build_field('project', 'website', 'Url', 'text',@project.website) %>
       <%= build_field('project', 'description', 'Description', 'text_area',@project.description) %>
