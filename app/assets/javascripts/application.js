@@ -11,5 +11,32 @@
 // about supported directives.
 //
 //= require rails-ujs
+//= require jquery
+//= require jquery_ujs
 //= require turbolinks
+//= require foundation
+//= require bootstrap-notify
+//= require select2
+//= require cocoon
 //= require_tree .
+
+
+
+$(function() {
+  $(document).foundation();
+});
+
+
+function infiniteScroll() {
+  if ($('.scroll-loop').size() > 0) {
+    return $('.scroll2watch').on('scroll', function(e) {
+      var load_more_url;
+      load_more_url = $(e.target).find('a.next_page').attr('href');
+      if (load_more_url && $(e.target).find('.paginator').height() - $(e.target).closest('.scroll2watch').scrollTop() - 60 < $(e.target).closest('.scroll2watch').height()) {
+        $(e.target).find('.pagination').html('loading...');
+        $.getScript(load_more_url);
+      }
+      return;
+    });
+  }
+}
