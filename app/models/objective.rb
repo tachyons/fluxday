@@ -1,5 +1,5 @@
 class Objective < ApplicationRecord
-  belongs_to :user
+  belongs_to :user, optional: true
   belongs_to :okr
   has_many :key_results
   has_many :tasks, through: :key_results

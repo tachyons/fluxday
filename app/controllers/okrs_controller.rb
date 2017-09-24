@@ -39,6 +39,7 @@ class OkrsController < ApplicationController
         format.html { redirect_to user_okr_path(@okr.user_id, @okr), notice: 'Okr was successfully created.' }
         format.json { render action: 'show', status: :created, location: @okr }
       else
+        p @okr.errors.full_messages
         format.html { render action: 'new' }
         format.json { render json: @okr.errors, status: :unprocessable_entity }
       end

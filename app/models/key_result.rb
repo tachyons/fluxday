@@ -1,5 +1,5 @@
 class KeyResult < ApplicationRecord
-  belongs_to :user
+  belongs_to :user, optional: true
   belongs_to :objective
   # has_many :tasks
   has_many :task_key_results
