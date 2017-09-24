@@ -5,7 +5,7 @@
           <%= f.hidden_field :team_id, :value => @root_task.team_id if @root_task.present? %>
           <%= f.hidden_field :project_id, :value => @root_task.project_id if @root_task.present? %>
           <%= f.hidden_field :user_id, :value => current_user.id %>
-          <%= build_validated_field('task', 'name', 'Title', 'Cannot be blank', '', 'text', @task.name) %>
+          <%= build_validated_field('task', 'name', 'Title', 'Cannot be blank', nil, 'text', @task.name) %>
           <%= build_field('task', 'description', 'Description', 'text_area', @task.description) %>
           <%#= build_validated_field('task', 'description', 'Description', 'Cannot be blank', '', 'text_area', @task.description) %>
           <% unless @root_task.present? %>
@@ -19,8 +19,8 @@
                 </div>
               </div>
           <% end %>
-          <%= build_validated_field('task', 'start_date', 'Start Date', 'Cannot be blank', '', 'date_field', @task.start_date) %>
-          <%= build_validated_field('task', 'end_date', 'End Date', 'Cannot be blank', '', 'date_field', @task.end_date) %>
+          <%= build_validated_field('task', 'start_date', 'Start Date', 'Cannot be blank', nil, 'date_field', @task.start_date) %>
+          <%= build_validated_field('task', 'end_date', 'End Date', 'Cannot be blank', nil, 'date_field', @task.end_date) %>
           <% if @task.status == 'completed' %>
               <div class='form-row'>
                 <div class='small-3 columns'>

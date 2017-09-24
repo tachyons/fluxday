@@ -11,16 +11,16 @@ class Task < ApplicationRecord
   has_many :work_logs
   has_many :task_key_results
   has_many :key_results, through: :task_key_results
-  has_many :users, -> { uniq }, through: :key_results
+  has_many :users, through: :key_results
 
-  default_scope { where.not(is_deleted: true).order('id desc') }
+  default_scope { where.not(is_deleted: true).order(id: :desc) }
 
   before_create :add_tracker_id
 
   after_save :update_team_task_count
   before_update :update_completion
 
-  belongs_to :root_task, class_name: 'Task', foreign_key: 'task_id'
+  belongs_to :root_task, class_name: 'Task', foreign_key: 'task_id', optional: true
   has_many :sub_tasks, class_name: 'Task', foreign_key: 'task_id'
 
   scope :active, -> { where(is_deleted: false) }

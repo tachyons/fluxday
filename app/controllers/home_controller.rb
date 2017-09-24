@@ -22,9 +22,8 @@ class HomeController < ApplicationController
             else
               params[:date].to_date
             end
-    @entries = current_user
-      .assigned_and_written_tasks
-      .where(date: @date.end_of_day..@date.beginning_of_day)
+    @entries = current_user.assigned_and_written_tasks.where('start_date <= ? AND end_date >= ?', @date.end_of_day, @date.beginning_of_day)
+
     @work_logs = current_user.work_logs.where(date: @date)
   end
 
@@ -34,8 +33,8 @@ class HomeController < ApplicationController
       redirect_to controller: 'tasks', action: 'show', id: @task.tracker_id
     else
       @tasks = Task.searchable_for_user(current_user)
-        .search('tracker_id_or_name_or_description_cont' => params[:search][:keyword])
-        .result.paginate(page: params[:page], per_page: 10).order('id DESC')
+                   .search('tracker_id_or_name_or_description_cont' => params[:search][:keyword])
+                   .result.paginate(page: params[:page], per_page: 10).order('id DESC')
       # render :layout => 'less_pane'
     end
   end
