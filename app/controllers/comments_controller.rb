@@ -8,7 +8,7 @@ class CommentsController < ApplicationController
   def index
     if params[:task_id].present?
       @task = Task.find(params[:task_id])
-      @comments = @task.comments.active.all(include: :user)
+      @comments = @task.comments.active.all.includes(:user)
       @comment = @task.comments.new
     else
       @comments = Comment.active
@@ -33,19 +33,9 @@ class CommentsController < ApplicationController
     @comment = Comment.new(comment_params)
     if @comment.save
       @task = @comment.source
-      @comments = @task.comments.active.all(include: :user)
+      @comments = @task.comments.active.all.includes(:user)
       @comment = @task.comments.new
     end
-
-    # respond_to do |format|
-    #  if @comment.save
-    #    format.html { redirect_to @comment, notice: 'Comment was successfully created.' }
-    #    format.json { render action: 'show', status: :created, location: @comment }
-    #  else
-    #    format.html { render action: 'new' }
-    #    format.json { render json: @comment.errors, status: :unprocessable_entity }
-    #  end
-    # end
   end
 
   # PATCH/PUT /comments/1
